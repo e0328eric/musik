@@ -1,0 +1,21 @@
+.{
+    .name = .musik,
+    .version = "0.0.0",
+    .fingerprint = 0xc389aa78a9adfd26,
+    .minimum_zig_version = "0.14.0",
+    .dependencies = .{
+        .raylib_zig = .{
+            .url = "git+https://github.com/Not-Nik/raylib-zig?ref=devel#e072ff119be71727ec4e1b0cb6d8f892b32ff440",
+            .hash = "raylib_zig-5.6.0-dev-KE8REGgxBQDoHuPWlO7RnY7M1jFlWV4kP1QY7r52GoP-",
+        },
+        .vaxis = .{
+            .url = "git+https://github.com/rockorager/libvaxis.git?ref=main#1f41c121e8fc153d9ce8c6eb64b2bbab68ad7d23",
+            .hash = "vaxis-0.1.0-BWNV_FUICQAFZnTCL11TUvnUr1Y0_ZdqtXHhd51d76Rn",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
