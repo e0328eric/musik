@@ -1,0 +1,22 @@
+[package]
+name = "musik"
+version = "0.1.0"
+edition = "2024"
+
+[profile.release]
+lto = true
+opt-level = "z"
+
+[dependencies]
+anyhow = "1.0.98"
+clap = { version = "4.5.38", features = ["derive"] }
+ratatui = "0.29.0"
+rodio = "0.20.1"
+symphonia = { version = "0.5.1", features = [
+  "mp3",
+  "isomp4",
+  "flac",
+  "mkv",
+  "wav",
+] }
+thiserror = "2.0.12"
