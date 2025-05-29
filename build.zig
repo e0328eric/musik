@@ -20,6 +20,7 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
     exe_mod.addIncludePath(b.path("./include"));
+    exe_mod.addIncludePath(b.path("./include/miniaudio"));
     exe_mod.addImport("zlap", zlap_dep.module("zlap"));
     exe_mod.addImport("vaxis", vaxis_dep.module("vaxis"));
 

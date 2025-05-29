@@ -2,6 +2,11 @@ const std = @import("std");
 const musik = @cImport({
     @cInclude("musik.h");
 });
+const vaxis = @import("vaxis");
+
+const Cell = vaxis.Cell;
+const TextInput = vaxis.widgets.TextInput;
+const border = vaxis.widgets.border;
 
 pub fn main() !void {
     const allocator = std.heap.c_allocator;
