@@ -1,0 +1,19 @@
+.{
+    .name = .musik,
+    .version = "0.0.0",
+    .fingerprint = 0xc389aa781718842a, // Changing this has security and trust implications.
+
+    .minimum_zig_version = "0.14.1",
+
+    .dependencies = .{
+        .vaxis = .{
+            .url = "git+https://github.com/rockorager/libvaxis.git#84d6cb381c0d628550fac3f6daa24c5faf7b2cd1",
+            .hash = "vaxis-0.1.0-BWNV_O8OCQBC4w-MnOGaKw9zFVFgTxf3XfcvgScUagEJ",
+        },
+        .zlap = .{
+            .url = "git+https://github.com/e0328eric/zlap.git#22f0f0f1f12e9cdccb0730492ea0fc00c5408cf3",
+            .hash = "zlap-0.6.1-AAAAAAu6AADlTvAd0rhTLg1wlmeQEt4N_GKKP1lh0Ck8",
+        },
+    },
+    .paths = .{ "build.zig", "build.zig.zon", "src", "include" },
+}

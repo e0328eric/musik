@@ -1,2 +1,5 @@
-/misty_rainbow.flac
-/target
+/*.wav
+/*.flac
+/*.mp4
+/.zig-cache
+/zig-out
