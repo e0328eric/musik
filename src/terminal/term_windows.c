@@ -78,7 +78,8 @@ void getKeyCode(
         Sleep(timeout);
     }
 
-    return buf.Event.KeyEvent.wVirtualKeyCode;
+    *keycode = buf.Event.KeyEvent.wVirtualKeyCode;
+    *is_pressed = buf.Event.KeyEvent.bKeyDown;
 }
 
 bool getCursorPos(const Terminal* self, Cursor* output) {
