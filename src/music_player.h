@@ -1,5 +1,5 @@
-#ifndef MUSIK_MUSIK_H_
-#define MUSIK_MUSIK_H_
+#ifndef MUSIK_MUSIC_PLAYER_H_
+#define MUSIK_MUSIC_PLAYER_H_
 
 #include <stdbool.h>
 #include <miniaudio.h>
@@ -29,4 +29,4 @@ MusikErrKind stopMusik(Musik* musik);
 MusikErrKind getTotalLen(double* output, const Musik* musik);
 MusikErrKind getCurrentLen(double* output, const Musik* musik);
 
-#endif // MUSIK_MUSIK_H_
+#endif // MUSIK_MUSIC_PLAYER_H_
