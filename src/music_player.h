@@ -12,6 +12,8 @@ typedef enum {
     MUSIK_STOP_DEVICE_FAILED,
     MUSIK_GET_TOTAL_LEN_FAILED,
     MUSIK_GET_CURRENT_LEN_FAILED,
+    MUSIK_OUT_OF_BOUND,
+    MUSIK_SEEK_MUSIC_FAILED,
     MUSIK_ERR_KIND_COUNT,
 } MusikErrKind;
 
@@ -26,7 +28,10 @@ void deinitMusik(Musik* musik);
 MusikErrKind startMusik(Musik* musik);
 MusikErrKind stopMusik(Musik* musik);
 
-MusikErrKind getTotalLen(double* output, const Musik* musik);
-MusikErrKind getCurrentLen(double* output, const Musik* musik);
+MusikErrKind getTotalLen(const Musik* musik, double* output);
+MusikErrKind getCurrentLen(const Musik* musik, double* output);
+
+MusikErrKind setCurrentLen(Musik* musik, double pos);
+MusikErrKind moveBySeconds(Musik* musik, double secs);
 
 #endif // MUSIK_MUSIC_PLAYER_H_

@@ -48,6 +48,11 @@ MusikErrKind initMusik(Musik* output, const char* filename) {
         goto CLEAN_DEVICE;
     }
 
+    if (ma_device_stop(&output->device) != MA_SUCCESS) {
+        fprintf(stderr, "Failed to stop playback.\n");
+        return MUSIK_STOP_DEVICE_FAILED;
+    }
+
     return result;
 
 CLEAN_DEVICE:
@@ -81,20 +86,52 @@ MusikErrKind stopMusik(Musik* musik) {
     return MUSIK_OK;
 }
 
-MusikErrKind getTotalLen(double* output, const Musik* musik) {
+MusikErrKind getTotalLen(const Musik* musik, double* output) {
     ma_uint64 total_frame_count;
     if (ma_decoder_get_length_in_pcm_frames(&musik->decoder, &total_frame_count) != MA_SUCCESS) {
         return MUSIK_GET_TOTAL_LEN_FAILED;
     }
 
     *output = (double)total_frame_count / musik->decoder.outputSampleRate;
+    return MUSIK_OK;
 }
 
-MusikErrKind getCurrentLen(double* output, const Musik* musik) {
+MusikErrKind getCurrentLen(const Musik* musik, double* output) {
     ma_uint64 current_frame_count;
     if (ma_decoder_get_cursor_in_pcm_frames(&musik->decoder, &current_frame_count) != MA_SUCCESS) {
         return MUSIK_GET_CURRENT_LEN_FAILED;
     }
 
     *output = (double)current_frame_count / musik->decoder.outputSampleRate;
+    return MUSIK_OK;
+}
+
+MusikErrKind setCurrentLen(Musik* musik, double pos) {
+    if (pos < 0.0) pos = 0.0;
+
+    ma_uint64 total_frame_count, set_frame_count;
+    if (ma_decoder_get_length_in_pcm_frames(&musik->decoder, &total_frame_count) != MA_SUCCESS) {
+        return MUSIK_GET_TOTAL_LEN_FAILED;
+    }
+
+    set_frame_count = (ma_uint64)(pos * musik->decoder.outputSampleRate);
+    if (set_frame_count >= total_frame_count) {
+        return MUSIK_OUT_OF_BOUND;
+    }
+
+    if (ma_decoder_seek_to_pcm_frame(&musik->decoder, set_frame_count) != MA_SUCCESS) {
+        return MUSIK_SEEK_MUSIC_FAILED;
+    }
+
+    return MUSIK_OK;
+}
+
+MusikErrKind moveBySeconds(Musik* musik, double secs) {
+    MusikErrKind result = MUSIK_OK;
+    double current_len;
+    if ((result = getCurrentLen(musik, &current_len)) != MUSIK_OK) {
+        return result;
+    }
+
+    return setCurrentLen(musik, current_len + secs);
 }

@@ -13,6 +13,8 @@ int main(int argc, char** argv) {
     clparseStart("musik", "simple tui music player");
     
     const ArrayList* filenames = clparseMainArg("FILENAME", "wav filename", NO_SUBCMD);
+    const bool* is_loop = clparseBool("loop", 'L', false, "loop music", NO_SUBCMD);
+
     if (!clparseParse(argc, argv)) {
         fprintf(stderr, "ERROR: failed to parse commandline. %s\n", clparseGetErr());
         result = 1;
@@ -47,18 +49,30 @@ int main(int argc, char** argv) {
     setCursorPos(term, (Cursor){ .x = 10, .y = 10});
 
     double music_len, curr_pos = 0.0;
-    getTotalLen(&music_len, &musik);
+    getTotalLen(&musik, &music_len);
 
     int code;
-    bool is_pressed;
+    bool is_pressed, is_paused = true;
     for (;;) {
         getKeyCode(term, &code, &is_pressed);
 
         // code must be capital letter
         if (is_pressed && code == 'Q') break;
-        getCurrentLen(&curr_pos, &musik);
+        else if (is_pressed && code == ' ') {
+            if (is_paused) startMusik(&musik); else stopMusik(&musik);
+            is_paused = !is_paused;
+        }
+        else if (is_pressed && code == VK_LEFT) moveBySeconds(&musik, -2.0);
+        else if (is_pressed && code == VK_RIGHT) moveBySeconds(&musik, 2.0);
 
-        if (music_len - curr_pos < 1e-7) return;
+        getCurrentLen(&musik, &curr_pos);
+        if (music_len - curr_pos < 1e-7) {
+            if (*is_loop) {
+                setCurrentLen(&musik, 0.0);
+            } else {
+                return;
+            }
+        }
 
         setCursorPos(term, (Cursor){ .x = 10, .y = 10});
         printf("%f / %f", curr_pos, music_len);
