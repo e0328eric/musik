@@ -36,7 +36,7 @@ Terminal* initTerminal(void) {
 
     // Optionally disable Ctrl+C handling
     raw_mode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT);
-    //raw_mode &= ~ENABLE_PROCESSED_INPUT;
+    raw_mode &= ~ENABLE_PROCESSED_INPUT;
 
     SetConsoleMode(self->win_stdin, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_PROCESSED_INPUT);
     SetConsoleMode(self->win_stdout, raw_mode);

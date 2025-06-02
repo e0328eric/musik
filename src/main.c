@@ -2,7 +2,7 @@
 
 #include "terminal.h"
 
-int main(void) {
+int main(int argc, char** argv) {
     Terminal* term = initTerminal();
     setCursorPos(term, (Cursor){ .x = 10, .y = 10});
 
@@ -10,7 +10,7 @@ int main(void) {
     bool is_pressed;
     for (;;) {
         getKeyCode(term, &code, &is_pressed, 0);
-        if (is_pressed && code == VK_RETURN) break; else printf("%d", code);
+        if (is_pressed && code == 'q') break; else printf("%d", code);
     }
 
     deinitTerminal(term);
