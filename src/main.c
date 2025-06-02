@@ -1,61 +1,80 @@
 #include <stdio.h>
+#include <assert.h>
 
+#define CLPARSE_IMPLEMENTATION
+#define NOT_ALLOW_EMPTY_ARGUMENT
+#include <clparse.h>
+
+#include "music_player.h"
 #include "terminal.h"
 
 int main(int argc, char** argv) {
+    int result = 0;
+    clparseStart("musik", "simple tui music player");
+    
+    const ArrayList* filenames = clparseMainArg("FILENAME", "wav filename", NO_SUBCMD);
+    if (!clparseParse(argc, argv)) {
+        fprintf(stderr, "ERROR: failed to parse commandline. %s\n", clparseGetErr());
+        result = 1;
+        goto CLEAN_CLPARSE;
+    }
+
+    if (clparseIsHelp()) {
+        clparsePrintHelp();
+        goto CLEAN_CLPARSE;
+    }
+
+    assert(filenames->kind == ARRAY_LIST_STRING);
+    if (filenames->len != 1) {
+        fprintf(stderr, "For now, only one song can be played\n");
+        result = 1;
+        goto CLEAN_CLPARSE;
+    }
+
+    const char* filename = *(const char**)filenames->items;
+    Musik musik;
+    if (initMusik(&musik, filename) != MUSIK_OK) {
+        result = 1;
+        goto CLEAN_CLPARSE;
+    }
+
     Terminal* term = initTerminal();
+    if (!term) {
+        fprintf(stderr, "ERROR: cannot set terminal into raw mode\n");
+        result = 1;
+        goto DEINIT_MUSIK;
+    }
     setCursorPos(term, (Cursor){ .x = 10, .y = 10});
+
+    double music_len, curr_pos = 0.0;
+    getTotalLen(&music_len, &musik);
 
     int code;
     bool is_pressed;
     for (;;) {
-        getKeyCode(term, &code, &is_pressed, 0);
-        if (is_pressed && code == 'q') break; else printf("%d", code);
-    }
+        getKeyCode(term, &code, &is_pressed);
 
-    deinitTerminal(term);
-}
+        // code must be capital letter
+        if (is_pressed && code == 'Q') break;
+        getCurrentLen(&curr_pos, &musik);
 
-/*
-
-pub fn main2() !void {
-    const allocator = std.heap.c_allocator;
-
-    const args = try std.process.argsAlloc(allocator);
-    if (args.len < 2) {
-        std.debug.print("Usage: {s} <wavfile>\n", .{args[0]});
-        return error.InvalidArgs;
-    }
-    const wavfile = args[1];
-
-    ////////////////////////////////////////////////////////////////////////////
-    ////                      Initialize Musik Stream                       ////
-    ////////////////////////////////////////////////////////////////////////////
-
-    var device: musik.Musik = undefined;
-    if (musik.initMusik(&device, wavfile.ptr) != musik.MUSIK_OK) {
-        return error.Foo;
-    }
-    defer musik.uninitMusik(&device);
-
-    ////////////////////////////////////////////////////////////////////////////
-    ////                          Main Event Loop                           ////
-    ////////////////////////////////////////////////////////////////////////////
-
-    var music_len: f64 = undefined;
-    var curr_pos: f64 = 0.0;
-
-    _ = musik.getTotalLen(&music_len, &device);
-
-    var buf = try ArrayList(u8).initCapacity(allocator, 50);
-    defer buf.deinit();
-
-    while (true) {
-        _ = musik.getCurrentLen(&curr_pos, &device);
         if (music_len - curr_pos < 1e-7) return;
 
-        std.time.sleep(std.time.ns_per_ms * 50);
+        setCursorPos(term, (Cursor){ .x = 10, .y = 10});
+        printf("%f / %f", curr_pos, music_len);
+        fflush(stdout);
+        musikSleep(50);
     }
+
+DEINIT_TERM:
+    deinitTerminal(term);
+
+DEINIT_MUSIK:
+    deinitMusik(&musik);
+
+CLEAN_CLPARSE:
+    clparseClose();
+
+    return result;
 }
 
-*/

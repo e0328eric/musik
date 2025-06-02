@@ -21,7 +21,7 @@ typedef struct {
 } Musik;
 
 MusikErrKind initMusik(Musik* output, const char* filename);
-void uninitMusik(Musik* musik);
+void deinitMusik(Musik* musik);
 
 MusikErrKind startMusik(Musik* musik);
 MusikErrKind stopMusik(Musik* musik);

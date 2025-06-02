@@ -58,7 +58,7 @@ CLEAN_DECODER:
     return result;
 }
 
-void uninitMusik(Musik* musik) {
+void deinitMusik(Musik* musik) {
     ma_device_uninit(&musik->device);
     ma_decoder_uninit(&musik->decoder);
 }

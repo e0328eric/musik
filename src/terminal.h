@@ -1,10 +1,20 @@
 #ifndef MUSIK_TUI_TERMINAL_H_
 #define MUSIK_TUI_TERMINAL_H_
 
-#ifdef _WIN32
-#include "./terminal/term_windows.h"
-//#else
-//#include "./terminal/term_posix.h"
-#endif
+#include <stdbool.h>
+#include <stdint.h>
+
+typedef struct Terminal Terminal;
+
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+} Cursor;
+
+Terminal* initTerminal(void);
+void deinitTerminal(Terminal* self);
+void getKeyCode(const Terminal* self, int* keycode, bool* is_pressed);
+bool getCursorPos(const Terminal* self, Cursor* output);
+void setCursorPos(const Terminal* self, Cursor cursor);
 
 #endif // MUSIK_TUI_TERMINAL_H_
