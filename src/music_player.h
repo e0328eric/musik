@@ -28,8 +28,8 @@ void deinitMusik(Musik* musik);
 MusikErrKind startMusik(Musik* musik);
 MusikErrKind stopMusik(Musik* musik);
 
-MusikErrKind getTotalLen(const Musik* musik, double* output);
-MusikErrKind getCurrentLen(const Musik* musik, double* output);
+MusikErrKind getTotalLen(Musik* const musik, double* output);
+MusikErrKind getCurrentLen(Musik* const musik, double* output);
 
 MusikErrKind setCurrentLen(Musik* musik, double pos);
 MusikErrKind moveBySeconds(Musik* musik, double secs);

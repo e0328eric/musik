@@ -1,4 +1,5 @@
 #include "utility.c"
 #include "terminal.c"
+#include "render.c"
 #include "music_player.c"
 #include "main.c"

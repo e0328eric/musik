@@ -7,11 +7,13 @@
 
 #include "music_player.h"
 #include "terminal.h"
+#include "render.h"
 
 int main(int argc, char** argv) {
     int result = 0;
     clparseStart("musik", "simple tui music player");
     
+    // TODO: Allow using unicode input
     const ArrayList* filenames = clparseMainArg("FILENAME", "wav filename", NO_SUBCMD);
     const bool* is_loop = clparseBool("loop", 'L', false, "loop music", NO_SUBCMD);
 
@@ -49,7 +51,7 @@ int main(int argc, char** argv) {
     setCursorPos(term, (Cursor){ .x = 10, .y = 10});
 
     double music_len, curr_pos = 0.0;
-    getTotalLen(&musik, &music_len);
+    if (getTotalLen(&musik, &music_len) != MUSIK_OK) goto DEINIT_TERM;
 
     int code;
     bool is_pressed, is_paused = true;
@@ -65,7 +67,7 @@ int main(int argc, char** argv) {
         else if (is_pressed && code == VK_LEFT) moveBySeconds(&musik, -2.0);
         else if (is_pressed && code == VK_RIGHT) moveBySeconds(&musik, 2.0);
 
-        getCurrentLen(&musik, &curr_pos);
+        if (getCurrentLen(&musik, &curr_pos) != MUSIK_OK) goto DEINIT_TERM;
         if (music_len - curr_pos < 1e-7) {
             if (*is_loop) {
                 setCurrentLen(&musik, 0.0);
@@ -74,9 +76,11 @@ int main(int argc, char** argv) {
             }
         }
 
-        setCursorPos(term, (Cursor){ .x = 10, .y = 10});
-        printf("%f / %f", curr_pos, music_len);
-        fflush(stdout);
+        if (!drawMusik(term, music_len, curr_pos)) {
+            fprintf(stderr, "ERROR: rendering failed\n");
+            goto DEINIT_TERM;
+        }
+
         musikSleep(50);
     }
 

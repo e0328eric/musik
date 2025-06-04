@@ -86,7 +86,7 @@ MusikErrKind stopMusik(Musik* musik) {
     return MUSIK_OK;
 }
 
-MusikErrKind getTotalLen(const Musik* musik, double* output) {
+MusikErrKind getTotalLen(Musik* const musik, double* output) {
     ma_uint64 total_frame_count;
     if (ma_decoder_get_length_in_pcm_frames(&musik->decoder, &total_frame_count) != MA_SUCCESS) {
         return MUSIK_GET_TOTAL_LEN_FAILED;
@@ -96,7 +96,7 @@ MusikErrKind getTotalLen(const Musik* musik, double* output) {
     return MUSIK_OK;
 }
 
-MusikErrKind getCurrentLen(const Musik* musik, double* output) {
+MusikErrKind getCurrentLen(Musik* const musik, double* output) {
     ma_uint64 current_frame_count;
     if (ma_decoder_get_cursor_in_pcm_frames(&musik->decoder, &current_frame_count) != MA_SUCCESS) {
         return MUSIK_GET_CURRENT_LEN_FAILED;
