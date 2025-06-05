@@ -92,15 +92,14 @@ bool drawMusik(Terminal* term, double total_music_len, double curr_music_pos) {
 
     // HH:MM:SS / HH:MM:SS
     char time_buf[20];
-    const size_t time_buf_len = sizeof(time_buf) - 1;
     MusicTime total_time = convertMusicTime(total_music_len);
     MusicTime curr_time = convertMusicTime(curr_music_pos);
 
-    snprintf(time_buf, time_buf_len, "%.2hu:%.2hhu:%.2hhu / %.2hu:%.2hhu:%.2hhu", 
+    snprintf(time_buf, sizeof(time_buf), "%.2hu:%.2hhu:%.2hhu / %.2hu:%.2hhu:%.2hhu", 
              curr_time.hour, curr_time.minute, curr_time.second,
              total_time.hour, total_time.minute, total_time.second);
 
-    const uint16_t start_to_write = win.width - time_buf_len - 2;
+    const uint16_t start_to_write = win.width - sizeof(time_buf) - 2;
     setCursorPos(term, (Cursor){ .x = 0, .y = win.height - 1});
     printf(ANSI"%d;%dm", ANSI_FG_BLACK, ANSI_BG_WHITE);
     for (uint16_t i = 0; i < win.width; ++i) {
