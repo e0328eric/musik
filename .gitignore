@@ -5,5 +5,3 @@
 /*.obj
 /*.o
 /build
-/.zig-cache
-/zig-out
