@@ -43,8 +43,8 @@ printChar:
     sub  rsp, 18h
     mov  BYTE [rbp - 8], dil
     invoke GetStdHandle, STD_OUTPUT_HANDLE
-    mov rdi, rbp
-    sub rdi, 8h
+    mov  rdi, rbp
+    sub  rdi, 8h
     invoke WriteFile, rax, rdi, 1, DWORD [rbp - 10h], 0
     leave
     ret
@@ -63,19 +63,18 @@ printNumber:
     pop  rdi
     neg  rdi
 @@:
-    xor  r8, r8
+    xor  r8,  r8
     mov  r12, 14757395258967641293
 .rev_digit:
     mov  rax, r8
-    mov  rdx, 10
-    mul  rdx
+    imul rax, rax, 10
     xchg rax, rdi
-    mov  r8, rax
+    mov  r8,  rax
     mul  r12
     shr  rdx, 3
     imul rax, rdx, 10
-    sub  r8, rax
-    add  r8, rdi
+    sub  r8,  rax
+    add  r8,  rdi
     mov  rdi, rdx
     cmp  rdi, 0
     jg   .rev_digit
@@ -84,14 +83,14 @@ printNumber:
     mul  r12
     shr  rdx, 3
     imul rax, rdx, 10
-    sub  r8, rax
-    xchg r8, rdx
+    sub  r8,  rax
+    xchg r8,  rdx
     add  rdx, 48 ;; '0'
     mov  dil, dl
     push r8
     call printChar
     pop  r8
-    cmp  r8, 0
+    cmp  r8,  0
     jg   .print
     pop  r12
     pop  r8
@@ -125,17 +124,17 @@ strcmp:
     xor  rax, rax
     xor  rcx, rcx
     test rdi, rsi
-    jz   strcmp.ret
+    jz   .ret
 @@:
-    mov   bl, byte [rdi + rcx]
-    mov   dl, byte [rsi + rcx]
-    cmp   bl, dl
-    sete  al
-    jne   strcmp.ret
-    test  bl, bl
-    setz  al
-    jz    strcmp.ret
-    inc   rcx
-    jmp   @B
-strcmp.ret:
+    mov  bl, BYTE [rdi + rcx]
+    mov  dl, BYTE [rsi + rcx]
+    cmp  bl, dl
+    sete al
+    jne  strcmp.ret
+    test bl, bl
+    setz al
+    jz   strcmp.ret
+    inc  rcx
+    jmp  @B
+.ret:
     ret
