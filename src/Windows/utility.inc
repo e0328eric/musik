@@ -1,0 +1,97 @@
+;; [in]  rdi <- size of bytes to allocate
+;; [out] rax -> allocated pointer
+alloc:
+    invoke VirtualAlloc, 0, rdi, MEM_COMMIT, PAGE_READWRITE
+    ret
+
+;; [in]  rdi <- pointer from alloc
+;; [out] rax -> whether dealloc success or not
+dealloc:
+    invoke VirtualFree, rdi, 0, MEM_RELEASE
+    ret
+
+;; [in]  rdi <- string pointer
+;; [out] rax -> returns number of bytes printed
+printAsciiStr:
+    push  rbp
+    mov   rbp, rsp
+    sub   rsp, 18h
+    invoke GetStdHandle, STD_OUTPUT_HANDLE
+    mov   QWORD [rbp - 8], rax
+    call  strlen
+    invoke WriteFile, QWORD [rbp - 8], rdi, rax, DWORD [rbp - 10h], 0
+    leave
+    ret
+
+;; [in]  rdi <- string pointer
+;; [in]  rsi <- string length (in UTF-16 bytes)
+;; [out] rax -> returns number of bytes printed
+printStr:
+    push  rbp
+    mov   rbp, rsp
+    sub   rsp, 18h
+    invoke GetStdHandle, STD_OUTPUT_HANDLE
+    invoke WriteConsoleW, rax, rdi, rsi, DWORD [rbp - 10h], 0
+    leave
+    ret
+
+;; [in]  rdi <- character to print
+;; [out] nothing
+printChar:
+    push rbp
+    mov  rbp, rsp
+    sub  rsp, 18h
+    mov  BYTE [rbp - 8], dil
+    invoke GetStdHandle, STD_OUTPUT_HANDLE
+    mov rdi, rbp
+    sub rdi, 8h
+    invoke WriteFile, rax, rdi, 1, DWORD [rbp - 10h], 0
+    leave
+    ret
+
+;; [in]  rdi <- *unsigned* integer to print
+;; [out] nothing
+printNumber:
+    ret
+
+;; [in]  rdi <- string pointer (const char*)
+;; [out] rax -> a length of the string, or -1 if [in] is NULL
+strlen:
+    push  rdi
+    test  rdi, rdi
+    jnz   @F
+    mov   rax, -1
+    ret
+@@:
+    push  rcx
+    or    rcx, -1  ;; makes rcx = max(u64)
+    xor   al, al
+    repne scasb    ;; find AL byte starting at [RDI] (here, al = \0)
+    neg   rcx
+    sub   rcx, 2
+    mov   rax, rcx
+    pop   rcx
+    pop   rdi
+    ret
+
+;; [in]  rdi <- null terminated string
+;; [in]  rsi <- null terminated string
+;; [out] rax -> 1 if they are equal, 0 otherwise
+strcmp:
+    xor  rax, rax
+    xor  rcx, rcx
+    test rdi, rsi
+    jz   strcmp.ret
+@@:
+    mov   bl, byte [rdi + rcx]
+    mov   dl, byte [rsi + rcx]
+    cmp   bl, dl
+    sete  al
+    jne   strcmp.ret
+    test  bl, bl
+    setz  al
+    jz    strcmp.ret
+    inc   rcx
+    jmp   @B
+strcmp.ret:
+    ret
