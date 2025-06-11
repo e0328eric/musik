@@ -6,7 +6,7 @@ include "encoding/utf8.inc" ; `du` converts utf8 into windows wchar_t type
 
 include "utility.inc"
 
-;;---------------------------------------------------------------------------------
+;;------------------------------------------------------------------------------
 ;; Windows x64 calling convention
 ;;
 ;; Parameter type                fifth and higher   fourth  third  second  leftmost
@@ -15,7 +15,7 @@ include "utility.inc"
 ;; Aggregates (8 ~ 64 bits) and __m64  stack        R9      R8     RDX     RCX
 ;; Other aggregates, as pointer        stack        R9      R8     RDX     RCX
 ;; __m128, as a pointer                stack        R9      R8     RDX     RCX
-;;---------------------------------------------------------------------------------
+;;------------------------------------------------------------------------------
 
 ;; NOTE: In this program, every function uses UNIX x86_64 calling convention.
 ;; which is, use registers rdi, rsi, rdx, rcx, r8, r9
@@ -30,10 +30,15 @@ _start:
     lea  rdi, [test_print]
     call printAsciiStr
 
-    lea  rdi, [sz_text]
-    mov  rsi, sz_text_len
+    mov rdi, -123412
+    call printNumber
+
+    mov dil, 10
+    call printChar
+
+    lea rdi, [sz_text]
+    mov rsi, sz_text_len
     call printStr
-    jmp  failed
 
     invoke GetCommandLineW
     invoke CommandLineToArgvW, rax, argc

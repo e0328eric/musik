@@ -52,6 +52,50 @@ printChar:
 ;; [in]  rdi <- *unsigned* integer to print
 ;; [out] nothing
 printNumber:
+    push rdi
+    push r8
+    push r12
+    test rdi, rdi
+    jns  @F
+    push rdi
+    mov  dil, 45 ;; '-'
+    call printChar
+    pop  rdi
+    neg  rdi
+@@:
+    xor  r8, r8
+    mov  r12, 14757395258967641293
+.rev_digit:
+    mov  rax, r8
+    mov  rdx, 10
+    mul  rdx
+    xchg rax, rdi
+    mov  r8, rax
+    mul  r12
+    shr  rdx, 3
+    imul rax, rdx, 10
+    sub  r8, rax
+    add  r8, rdi
+    mov  rdi, rdx
+    cmp  rdi, 0
+    jg   .rev_digit
+.print:
+    mov  rax, r8
+    mul  r12
+    shr  rdx, 3
+    imul rax, rdx, 10
+    sub  r8, rax
+    xchg r8, rdx
+    add  rdx, 48 ;; '0'
+    mov  dil, dl
+    push r8
+    call printChar
+    pop  r8
+    cmp  r8, 0
+    jg   .print
+    pop  r12
+    pop  r8
+    pop  rdi
     ret
 
 ;; [in]  rdi <- string pointer (const char*)
