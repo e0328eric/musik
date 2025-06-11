@@ -27,53 +27,54 @@ _start:
     ;; does not use more than four arguments
     sub  rsp, 28h
 
-    lea  rdi, [test_print]
-    call printAsciiStr
-
-    mov rdi, -123412
-    call printNumber
-
-    mov dil, 10
-    call printChar
-
-    lea rdi, [sz_text]
-    mov rsi, sz_text_len
-    call printStr
-
     invoke GetCommandLineW
     invoke CommandLineToArgvW, rax, argc
-    mov QWORD [argv], rax
+    mov  QWORD [argv], rax
 
-    cmp [argc], 2
-    jne failed
+    cmp  [argc], 2
+    jl   invalid_argument
 
-    mov rax, QWORD [argv]
-    invoke MessageBoxW, 0, sz_text, QWORD [rax + 8], MB_OK or MB_ICONERROR
+    dec  DWORD [argc]
+    mov  rax, QWORD [argv]
+    mov  ebx, DWORD [argc]
+    imul ebx, ebx, 8
+    mov  rcx, 32
+    bzhi rbx, rbx, rcx
+    add  rax, rbx
+    mov  rbx, QWORD [rax]
+    mov  QWORD [filename], rbx
 
-    mov rdi, 100
-    call alloc
-    mov rdi, rax
-    call dealloc
-
+    invoke MessageBoxW, 0, QWORD [filename], msg_title, MB_OK
+    invoke PlaySoundW, 
     invoke ExitProcess, 0
 
-failed:
-    invoke MessageBoxW, 0, sz_text, sz_text, MB_OK
+invalid_argument:
+    invoke MessageBoxW, 0, invalid_argument_msg, msg_title, MB_OK or MB_ICONERROR
+    lea rdi, [_usage]
+    call printAsciiStr
+    jmp exit_failure
+
+exit_failure:
     invoke ExitProcess, 1
 
 section ".data" data readable
-test_print db "Hello, World!", 10, 0
-sz_text du "간단한 한글", 0
-sz_text_len = $ - sz_text
+msg_title            du "Musik Error", 0
+invalid_argument_msg du "Invalid argument was given. See the console for more "
+                     du "information.", 0
+
+_usage db 0dh, 0ah
+       db "usage: musik [-L] <wav filename>", 0dh, 0ah, 0
 
 section ".bss" data readable writable
-argc dd ?
-argv dq ?
+argc     dd ?
+argv     dq ?
+filename dq ?
 
 section ".idata" import data readable writable
 library kernel32, "KERNEL32.DLL",\
         user32,   "USER32.DLL",\
-        shell32,  "SHELL32.DLL"
+        shell32,  "SHELL32.DLL",\
+        winmm,    "WINMM.DLL"
 
 include "api/kernel32.inc"
 include "api/user32.inc"
