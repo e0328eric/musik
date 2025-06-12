@@ -42,7 +42,7 @@ initTerminal:
     mov  edi, ENABLE_WINDOW_INPUT or ENABLE_MOUSE_INPUT or ENABLE_PROCESSED_INPUT
     invoke SetConsoleMode, QWORD [term.win_stdin], edi
 
-    ;;invoke WriteConsoleA, QWORD [term.win_stdout], HIDE_CURSOR, HIDE_CURSOR.len, 0
+    invoke WriteConsoleA, QWORD [term.win_stdout], HIDE_CURSOR, HIDE_CURSOR.len, 0
     invoke WriteConsoleA, QWORD [term.win_stdout], ENTER_ALT_SCREEN_BUF, ENTER_ALT_SCREEN_BUF.len, 0
     invoke WriteConsoleA, QWORD [term.win_stdout], CLEAR_ENTIRE_SCREEN, CLEAR_ENTIRE_SCREEN.len, 0
 
@@ -53,7 +53,7 @@ initTerminal:
 ;; [out] nothing
 deinitTerminal:
     invoke WriteConsoleA, QWORD [term.win_stdout], EXIT_ALT_SCREEN_BUF, EXIT_ALT_SCREEN_BUF.len, 0
-    ;;invoke WriteConsoleA, QWORD [term.win_stdout], SHOW_CURSOR, SHOW_CURSOR.len, 0
+    invoke WriteConsoleA, QWORD [term.win_stdout], SHOW_CURSOR, SHOW_CURSOR.len, 0
     invoke SetConsoleMode, QWORD [term.win_stdin], DWORD [term.stdin_orig_mode]
     invoke SetConsoleMode, QWORD [term.win_stdout], DWORD [term.stdout_orig_mode]
     ret
