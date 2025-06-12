@@ -5,6 +5,7 @@ include "win64w.inc"
 include "encoding/utf8.inc" ; `du` converts utf8 into windows wchar_t type
 
 include "utility.inc"
+include "terminal.inc"
 
 ;;------------------------------------------------------------------------------
 ;; Windows x64 calling convention
@@ -44,14 +45,23 @@ _start:
     mov  rbx, QWORD [rax]
     mov  QWORD [filename], rbx
 
+    call initTerminal
+
+    mov  di, 20
+    mov  si, 0
+    call setCursorPos
+
+    mov  rdi, QWORD [filename]
+    call printStrWNul
     invoke MessageBoxW, 0, QWORD [filename], msg_title, MB_OK
-    invoke PlaySoundW, 
+
+    call deinitTerminal
     invoke ExitProcess, 0
 
 invalid_argument:
     invoke MessageBoxW, 0, invalid_argument_msg, msg_title, MB_OK or MB_ICONERROR
     lea rdi, [_usage]
-    call printAsciiStr
+    call printStrANul
     jmp exit_failure
 
 exit_failure:
@@ -61,6 +71,7 @@ section ".data" data readable
 msg_title            du "Musik Error", 0
 invalid_argument_msg du "Invalid argument was given. See the console for more "
                      du "information.", 0
+term_err_str         du "Terminal handling failed.", 0
 
 _usage db 0dh, 0ah
        db "usage: musik [-L] <wav filename>", 0dh, 0ah, 0

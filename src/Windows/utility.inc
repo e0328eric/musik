@@ -1,3 +1,10 @@
+;; string struct implementation
+struc string [data] {
+    common
+    . db data
+    .len = $ - .
+}
+
 ;; [in]  rdi <- size of bytes to allocate
 ;; [out] rax -> allocated pointer
 alloc:
@@ -10,28 +17,53 @@ dealloc:
     invoke VirtualFree, rdi, 0, MEM_RELEASE
     ret
 
-;; [in]  rdi <- string pointer
+;; [in]  rdi <- string pointer (ascii)
 ;; [out] rax -> returns number of bytes printed
-printAsciiStr:
+printStrANul:
     push  rbp
     mov   rbp, rsp
     sub   rsp, 18h
     invoke GetStdHandle, STD_OUTPUT_HANDLE
     mov   QWORD [rbp - 8], rax
-    call  strlen
-    invoke WriteFile, QWORD [rbp - 8], rdi, rax, DWORD [rbp - 10h], 0
+    call  strlenA
+    invoke WriteConsoleA, QWORD [rbp - 8], rdi, rax, 0, 0
+    leave
+    ret
+
+;; [in]  rdi <- string pointer (utf-16)
+;; [out] rax -> returns number of bytes printed
+printStrWNul:
+    push  rbp
+    mov   rbp, rsp
+    sub   rsp, 18h
+    invoke GetStdHandle, STD_OUTPUT_HANDLE
+    mov   QWORD [rbp - 8], rax
+    call  strlenW
+    invoke WriteConsoleW, QWORD [rbp - 8], rdi, rax, 0, 0
+    leave
+    ret
+
+;; [in]  rdi <- string pointer
+;; [in]  rsi <- string length (in ascii bytes)
+;; [out] nothing
+printStrA:
+    push  rbp
+    mov   rbp, rsp
+    sub   rsp, 18h
+    invoke GetStdHandle, STD_OUTPUT_HANDLE
+    invoke WriteConsoleA, rax, rdi, rsi, 0, 0
     leave
     ret
 
 ;; [in]  rdi <- string pointer
 ;; [in]  rsi <- string length (in UTF-16 bytes)
-;; [out] rax -> returns number of bytes printed
-printStr:
+;; [out] nothing
+printStrW:
     push  rbp
     mov   rbp, rsp
     sub   rsp, 18h
     invoke GetStdHandle, STD_OUTPUT_HANDLE
-    invoke WriteConsoleW, rax, rdi, rsi, DWORD [rbp - 10h], 0
+    invoke WriteConsoleW, rax, rdi, rsi, 0, 0
     leave
     ret
 
@@ -99,7 +131,7 @@ printNumber:
 
 ;; [in]  rdi <- string pointer (const char*)
 ;; [out] rax -> a length of the string, or -1 if [in] is NULL
-strlen:
+strlenA:
     push  rdi
     test  rdi, rdi
     jnz   @F
@@ -110,6 +142,26 @@ strlen:
     or    rcx, -1  ;; makes rcx = max(u64)
     xor   al, al
     repne scasb    ;; find AL byte starting at [RDI] (here, al = \0)
+    neg   rcx
+    sub   rcx, 2
+    mov   rax, rcx
+    pop   rcx
+    pop   rdi
+    ret
+
+;; [in]  rdi <- string pointer (const wchar_t*)
+;; [out] rax -> a length of the string, or -1 if [in] is NULL
+strlenW:
+    push  rdi
+    test  rdi, rdi
+    jnz   @F
+    mov   rax, -1
+    ret
+@@:
+    push  rcx
+    or    rcx, -1  ;; makes rcx = max(u64)
+    xor   ax, ax
+    repne scasw    ;; find AX byte starting at [RDI] (here, ax = \0)
     neg   rcx
     sub   rcx, 2
     mov   rax, rcx
