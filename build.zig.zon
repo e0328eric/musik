@@ -1,0 +1,19 @@
+.{
+    .name = .musik,
+    .version = "0.0.0",
+    .fingerprint = 0xc389aa78ebf8bf89, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.14.1",
+
+    .dependencies = .{
+        .zlap = .{
+            .url = "https://github.com/e0328eric/zlap/archive/refs/tags/v0.6.1.tar.gz",
+            .hash = "zlap-0.6.1-AAAAAAu6AACnMQQNpz8LerirvOSg9vXoSweNxK3INEsE",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "thirdparty",
+    },
+}

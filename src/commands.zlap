@@ -1,0 +1,18 @@
+{
+    #main;
+    #name: musik;
+    #desc: Simple music player in tui;
+
+    #arg;
+    desc: wav filename;
+    meta: FILENAME;
+    type: string;
+    default:;
+
+    #flag;
+    long: loop;
+    short: L;
+    desc: looping musics;
+    type: bool;
+    default: false;
+}
