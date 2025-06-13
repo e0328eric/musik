@@ -1,19 +1,3 @@
-;; structure implementation
-struct Terminal
-    win_stdin        dq ?
-    win_stdout       dq ?
-    stdin_orig_mode  dd ?
-    stdout_orig_mode dd ?
-ends
-
-ENABLE_ECHO_INPUT                  = 4
-ENABLE_LINE_INPUT                  = 2
-ENABLE_PROCESSED_INPUT             = 1
-ENABLE_PROCESSED_OUTPUT            = 1
-ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4
-ENABLE_WINDOW_INPUT                = 8
-ENABLE_MOUSE_INPUT                 = 10h
-
 ;; [in]  nothing
 ;; [out] nothing
 initTerminal:
