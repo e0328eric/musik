@@ -1,9 +1,5 @@
-/*.wav
-/*.flac
-/*.mp4
 /*.exe
+/*.exe.old
 /*.obj
-/*.o
+/*.wav
 /build
-/.zig-cache
-/zig-out
