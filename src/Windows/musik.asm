@@ -7,8 +7,10 @@ include "winapi.inc"
 include "libc.inc"
 
 include "structs.inc"
+include "errors.inc"
 include "utility.inc"
 include "terminal.inc"
+include "miniaudio.inc"
 
 ;;------------------------------------------------------------------------------
 ;; Windows x64 calling convention
@@ -26,14 +28,32 @@ section ".text" code readable executable
 main:
     ;; at least 32 bytes of stack must be allocated even if the function
     ;; does not use more than four arguments
-    sub  rsp, 28h
+    ;; in addition, the stack will always be maintained 16-byte aligned
+    ;; 
+    ;; Reference:
+    ;; https://learn.microsoft.com/en-us/cpp/build/stack-usage?view=msvc-170
+    push rbp
+    mov  rbp, rsp
+    sub  rsp, 30h
+
+    lea  rcx, [rbp - 8h]
+    mov  rdx, 12
+    lea  r8, [fmt_str]
+    lea  r9,  [foo]
+    call sprintf_s
+
+    lea rcx, [rbp - 8h]
+    call printf
+    leave
+    xor rax, rax
+    ret
 
     invoke GetCommandLineW
     invoke CommandLineToArgvW, rax, argc
     mov  QWORD [argv], rax
 
     cmp  [argc], 2
-    jl   invalid_argument
+    jl   invalidArgument
 
     dec  DWORD [argc]
     mov  rax, QWORD [argv]
@@ -44,8 +64,11 @@ main:
     add  rax, rbx
     mov  rbx, QWORD [rax]
     mov  QWORD [filename], rbx
+    invoke printStrWNul, QWORD [filename]
+    leave
+    xor rax, rax
+    ret
 
-    int3
     invoke initTerminal
     invoke setCursorPos, 20, 0
     invoke printStrWNul, QWORD [filename]
@@ -59,24 +82,19 @@ main:
     invoke MessageBoxW, 0, QWORD [filename], msg_title, MB_OK
 
     invoke deinitTerminal
-    invoke ExitProcess, 0
-
-invalid_argument:
-    invoke MessageBoxW, 0, invalid_argument_msg, msg_title, MB_OK or MB_ICONERROR
-    lea rcx, [usage]
-    call printf
-    jmp exit_failure
-
-exit_failure:
-    invoke ExitProcess, 1
+    leave
+    xor  rax, rax
+    ret
+;; every errors must jump to here
+exitFailure:
+    leave
+    mov  rax, 1
+    ret
 
 section ".mdata" data readable
-msg_title            du "Musik Error", 0
-invalid_argument_msg du "Invalid argument was given. See the console for more "
-                     du "information.", 0
-term_err_str         du "Terminal handling failed.", 0
-
-usage db "usage: musik [-L] <wav filename>", 10, 0
+usage   db "usage: musik [-L] <wav filename>", 10, 0
+fmt_str db "%s", 10, 0
+foo     db "Hello?", 0
 
 section ".mglobal" data readable writable
 argc     dd ?

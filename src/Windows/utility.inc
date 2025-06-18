@@ -24,7 +24,7 @@ printStrWNul:
 printChar:
     push rbp
     mov  rbp, rsp
-    sub  rsp, 18h
+    sub  rsp, 20h
     mov  BYTE [rbp - 8], cl
     invoke GetStdHandle, STD_OUTPUT_HANDLE
     mov  rdi, rbp

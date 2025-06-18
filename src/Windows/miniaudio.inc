@@ -15,6 +15,15 @@ MA_DEVICE_SIZE  = 3312
 
 MA_SUCCESS      = 0
 
+;; musik errorkind
+MUSIK_OPEN_FILE_FAILED    = 1
+MUSIK_INIT_DEVICE_FAILED  = 2
+MUSIK_START_DEVICE_FAILED = 3
+MUSIK_STOP_DEVICE_FAILED  = 4
+MUSIK_ERROR_KIND_COUNT    = 5
+
+section ".text" code readable executable
+
 ;; [in]  rcx <- filename (utf-16)
 initMusik:
     push rcx
@@ -25,6 +34,11 @@ initMusik:
 
     pop  rcx
     invoke ma_decoder_init_file_w, rcx, 0, QWORD [musik.decoder]
+    cmp  rax, MA_SUCCESS
+    jne  @F
+    mov  r12, MUSIK_OPEN_FILE_FAILED
+    jmp  musikInitFailed
+@@:
     ret
 
 deinitMusik:

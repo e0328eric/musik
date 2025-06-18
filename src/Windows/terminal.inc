@@ -5,11 +5,11 @@ section ".text" code readable executable
 initTerminal:
     invoke GetStdHandle, STD_INPUT_HANDLE
     cmp  rax, INVALID_HANDLE_VALUE
-    je   termErr
+    je   termInitFailed
     mov  QWORD [term.win_stdin], rax
     invoke GetStdHandle, STD_OUTPUT_HANDLE
     cmp  rax, INVALID_HANDLE_VALUE
-    je   termErr
+    je   termInitFailed
     mov  QWORD [term.win_stdout], rax
 
     invoke GetConsoleMode, QWORD [term.win_stdin], term.stdin_orig_mode
@@ -47,7 +47,7 @@ deinitTerminal:
 setCursorPos:
     push rbp
     mov  rbp, rsp
-    sub  rsp, 18h
+    sub  rsp, 20h
 
     mov  WORD [rbp - 8], cx
     mov  WORD [rbp - 10], dx
@@ -55,10 +55,6 @@ setCursorPos:
     invoke SetConsoleCursorPosition, QWORD [term.win_stdout], eax
     leave
     ret
-
-termErr:
-    invoke MessageBoxW, 0, term_err_str, msg_title, MB_OK or MB_ICONERROR
-    jmp exit_failure
 
 section ".termd" data readable
 SHOW_CURSOR           string 1bh, "[?25h"
